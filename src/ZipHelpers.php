@@ -5,6 +5,22 @@ if (!defined('ABSPATH')) {
 
 class ZipHelpers
 {
+    public static function getTempDir($folder)
+    {
+        $dir = ABSPATH . '/zip-tmp/';
+        if (!is_dir($dir)) mkdir($dir);
+
+        $dir = $dir . $folder . '/';
+        if (!is_dir($dir)) mkdir($dir);
+
+        return $dir;
+    }
+
+    public static function cleanUpTmp()
+    {
+        Helpers::removeDir(ABSPATH . '/zip-tmp/');
+    }
+
     public static function unzip($zipFile, $dest)
     {
         $zip = new \ZipArchive;

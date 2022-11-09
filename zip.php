@@ -28,7 +28,7 @@ if (!file_exists(Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName)
      * fetch Zip
      */
 
-    $tempDirGet = Helpers::getTempDir('tmp-updates-fetch');
+    $tempDirGet = ZipHelpers::getTempDir('tmp-updates-fetch');
     Helpers::httpGetZip($zipUrl, $tempDirGet . $zipPluginFolder . '.zip');
     $unzip = ZipHelpers::unzip($tempDirGet . $zipPluginFolder . '.zip', $tempDirGet);
     $subDirs = glob($tempDirGet . '/*', GLOB_ONLYDIR);
@@ -38,13 +38,10 @@ if (!file_exists(Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName)
      * move package files
      */
 
-    $tempDirZip = Helpers::getTempDir('tmp-updates-package');
+    $tempDirZip = ZipHelpers::getTempDir('tmp-updates-package');
     $target = $tempDirZip . $zipPluginFolder . '/';
     if (!is_dir($target)) mkdir($target);
 
-    //if (is_dir($target)) Helpers::removeDir($target);
-
-    //if (!is_dir($target . 'public/')) mkdir($target . 'public/');
     array_map(function ($e) use ($packageDir, $target) {
         rename(
             Helpers::trailingslashit($packageDir) . $e,
@@ -63,7 +60,7 @@ if (!file_exists(Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName)
      */
 
     ZipHelpers::Zip($tempDirZip, $zipFileDir);
-    Helpers::cleanUpTmp();
+    ZipHelpers::cleanUpTmp();
 }
 
 header("Content-type: application/zip");

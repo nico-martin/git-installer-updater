@@ -3,25 +3,10 @@ if (!defined('ABSPATH')) {
     die();
 }
 
+
 class Helpers
 {
-
-
-    public static function getTempDir($folder)
-    {
-        $dir = ABSPATH . '/tmp/';
-        if (!is_dir($dir)) mkdir($dir);
-
-        $dir = $dir . $folder . '/';
-        if (!is_dir($dir)) mkdir($dir);
-
-        return $dir;
-    }
-
-    public static function cleanUpTmp()
-    {
-        self::removeDir(ABSPATH . '/tmp/');
-    }
+    private static $cacheTime = 60 * 30; // cached content refreshes all 30min
 
     public static function removeDir($dir)
     {
@@ -39,6 +24,26 @@ class Helpers
             reset($objects);
             rmdir($dir);
         }
+    }
+
+    public static function getCache($key)
+    {
+        $cacheFile = self::getCacheFolder() . urlencode($key) . '.json';
+        if (is_file($cacheFile) && filemtime($cacheFile) > time() - self::$cacheTime) return json_decode(file_get_contents($cacheFile), true);
+        return null;
+    }
+
+    public static function setCache($key, $data)
+    {
+        $cacheFile = self::getCacheFolder() . urlencode($key) . '.json';
+        file_put_contents($cacheFile, json_encode($data));
+    }
+
+    public static function getCacheFolder()
+    {
+        $dir = ABSPATH . '/cache/';
+        if (!is_dir($dir)) mkdir($dir);
+        return $dir;
     }
 
     public static function trailingslashit($string)
@@ -94,7 +99,9 @@ class Helpers
         curl_setopt($ch, CURLOPT_USERAGENT, 'php-request');
         $resp = curl_exec($ch);
         curl_close($ch);
-        return str_replace('<?', '', $resp);
+        $resp = str_replace('<?', '', $resp);
+
+        return $resp;
     }
 
     public static function parseHeader($fileData)

@@ -32,9 +32,13 @@ class GitHub
 
     public function getHeaders()
     {
+        $cached = Helpers::getCache($this->release);
+        if ($cached) return $cached;
         $url = 'https://raw.githubusercontent.com/SayHelloGmbH/git-installer/' . $this->release . '/git-installer.php';
         $content = Helpers::httpGetPlain($url);
-        return Helpers::parseHeader($content);
+        $headers = Helpers::parseHeader($content);
+        Helpers::setCache($this->release, $headers);
+        return $headers;
     }
 }
 
