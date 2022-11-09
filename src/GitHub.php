@@ -10,7 +10,18 @@ class GitHub
 
     public function __construct($release)
     {
-        $this->release = $release;
+        $this->release = ($release === 'latest') ? $this->getLatestReleaseTagName() : $release;
+    }
+
+    public function getLatestReleaseTagName()
+    {
+        $cacheId = 'latest-release-name';
+        $cached = Helpers::getCache($cacheId);
+        if ($cached) return $cached;
+        $content = Helpers::httpGetRest('https://api.github.com/repos/SayHelloGmbH/git-installer/releases/latest');
+        $name = $content['tag_name'];
+        Helpers::setCache($cacheId, $name);
+        return $name;
     }
 
     public function getReleaseInfo($value = '')

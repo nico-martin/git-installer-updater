@@ -14,6 +14,8 @@ require_once './src/ZipHelpers.php';
 require_once './src/GitHub.php';
 
 $github = new GitHub($release);
+$release = $github->release;
+
 $zipUrl = $github->getReleaseInfo('zipball_url');
 
 $zipPluginFolder = 'git-installer-' . $release;
