@@ -48,8 +48,6 @@ class GitHub
         $url = 'https://raw.githubusercontent.com/SayHelloGmbH/git-installer/' . $this->release . '/git-installer.php';
         $content = Helpers::httpGetPlain($url);
         $headers = Helpers::parseHeader($content);
-        $headers["version"] = "2.0";
-        $headers["name"] = $headers["plugin"];
 
         Helpers::setCache($this->release, $headers);
         return $headers;
