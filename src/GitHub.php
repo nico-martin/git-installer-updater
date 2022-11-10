@@ -48,8 +48,42 @@ class GitHub
         $url = 'https://raw.githubusercontent.com/SayHelloGmbH/git-installer/' . $this->release . '/git-installer.php';
         $content = Helpers::httpGetPlain($url);
         $headers = Helpers::parseHeader($content);
+        $headers["version"] = "2.0";
+        $headers["name"] = $headers["plugin"];
+
         Helpers::setCache($this->release, $headers);
         return $headers;
+    }
+
+    public function getUpdateInfos()
+    {
+        $headers = $this->getHeaders();
+        $host = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+
+        return [
+            'name' => $headers['plugin'],
+            'version' => $headers['version'],
+            'download_url' => $host . "/zip.php?release={$this->release}",
+            'homepage' => $headers['plugin-uri'],
+            'requires' => $headers['requires-at-least'],
+            'tested' => $headers['tested-up-to'],
+            'author' => 'Nico Martin',
+            'author_homepage' => 'https://nico.dev',
+            'sections' => [
+                'description' => $headers['description'],
+                //'installation' => '(Recommended) Installation instructions.',
+                //'changelog' => '(Recommended) Changelog. <p>This section will be displayed by default when the user clicks "View version x.y.z details".</p>',
+                //'custom_section' => 'This is a custom section labeled "Custom Section".'
+            ],
+            'icons' => [
+                '1x' => $host . '/assets/icon-128.jpg',
+                '2x' => $host . '/assets/icon-256.jpg',
+            ],
+            'banners' => [
+                'low' => $host . '/assets/banner-772x250.jpg',
+                'high' => $host . '/assets/banner-1544x500.jpg',
+            ]
+        ];
     }
 }
 

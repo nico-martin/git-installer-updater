@@ -15,4 +15,4 @@ require_once './src/GitHub.php';
 $github = new GitHub($release);
 
 header("Content-Type: application/json; charset=utf-8");
-echo json_encode($github->getHeaders());
+echo json_encode($github->getUpdateInfos());
