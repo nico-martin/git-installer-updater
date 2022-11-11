@@ -3,7 +3,7 @@ require_once './src/MatomoTracker.php';
 
 const ABSPATH = __DIR__;
 
-$matomoTracker = new MatomoTracker((int)8, 'https://analytics.sayhello.agency/');
+$matomoTracker = new MatomoTracker((int)9, 'https://analytics.sayhello.agency/');
 $matomoTracker->disableCookieSupport();
 $matomoTracker->doTrackPageView('get plugin zip');
 
