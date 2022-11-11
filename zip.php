@@ -1,8 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once './src/MatomoTracker.php';
 
 const ABSPATH = __DIR__;
+
+$matomoTracker = new MatomoTracker((int)8, 'https://analytics.sayhello.agency/');
+$matomoTracker->disableCookieSupport();
+$matomoTracker->doTrackPageView('get plugin zip');
+
 $release = array_key_exists('release', $_GET) ? $_GET['release'] : null;
 
 if (!$release) {
@@ -64,6 +68,8 @@ if (!file_exists($zipFileDir)) {
     ZipHelpers::Zip($tempDirZip, $zipFileDir);
     ZipHelpers::cleanUpTmp();
 }
+
+$matomoTracker->doTrackEvent('Downloaded', $release);
 
 header("Content-type: application/zip");
 header("Content-Disposition: attachment; filename=$zipFileName");
