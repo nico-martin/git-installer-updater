@@ -18,19 +18,19 @@ $release = $github->release;
 
 $zipUrl = $github->getReleaseInfo('zipball_url');
 
-$zipPluginFolder = 'git-installer-' . $release;
+$zipPluginFolder = 'git-installer';
 $zipFileName = $zipPluginFolder . '.zip';
-$zipFileDir = Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName;
+$zipFileDir = Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/' . $zipFileName;
 
-if (!file_exists(Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName)) {
+if (!file_exists($zipFileDir)) {
 
-    if (!is_dir(Helpers::trailingslashit(ABSPATH) . 'releases/')) mkdir(Helpers::trailingslashit(ABSPATH) . 'releases/');
+    if (!is_dir(Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/')) mkdir(Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/');
 
     /**
      * fetch Zip
      */
 
-    $tempDirGet = ZipHelpers::getTempDir('tmp-updates-fetch');
+    $tempDirGet = ZipHelpers::getTempDir('tmp-updates-fetch-' . $release);
     Helpers::httpGetZip($zipUrl, $tempDirGet . $zipPluginFolder . '.zip');
     $unzip = ZipHelpers::unzip($tempDirGet . $zipPluginFolder . '.zip', $tempDirGet);
     $subDirs = glob($tempDirGet . '/*', GLOB_ONLYDIR);
@@ -40,7 +40,7 @@ if (!file_exists(Helpers::trailingslashit(ABSPATH) . 'releases/' . $zipFileName)
      * move package files
      */
 
-    $tempDirZip = ZipHelpers::getTempDir('tmp-updates-package');
+    $tempDirZip = ZipHelpers::getTempDir('tmp-updates-package-' . $release);
     $target = $tempDirZip . $zipPluginFolder . '/';
     if (!is_dir($target)) mkdir($target);
 
