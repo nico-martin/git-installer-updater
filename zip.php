@@ -24,58 +24,41 @@ $zipUrl = $github->getReleaseInfo('zipball_url');
 
 $zipPluginFolder = 'git-installer';
 $zipFileName = $zipPluginFolder . '.zip';
-$zipFileDir = Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/' . $zipFileName;
+$releasesDir = Helpers::trailingslashit(ABSPATH) . 'releases/';
+$zipFileDir = $releasesDir . $release . '/';
+if (!is_dir($zipFileDir)) mkdir($zipFileDir);
+$zipFilePath = $zipFileDir . $zipFileName;
 
-if (!file_exists($zipFileDir)) {
-
-    if (!is_dir(Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/')) mkdir(Helpers::trailingslashit(ABSPATH) . 'releases/' . $release . '/');
-
-    /**
-     * fetch Zip
-     */
-
+if (!file_exists($zipFilePath)) {
+    $zip = new ZipArchive;
     $tempDirGet = ZipHelpers::getTempDir('tmp-updates-fetch-' . $release);
+    $tempDir = ZipHelpers::getTempDir('tmp-updates-' . $release);
     Helpers::httpGetZip($zipUrl, $tempDirGet . $zipPluginFolder . '.zip');
-    $unzip = ZipHelpers::unzip($tempDirGet . $zipPluginFolder . '.zip', $tempDirGet);
-    $subDirs = glob($tempDirGet . '/*', GLOB_ONLYDIR);
-    $packageDir = $subDirs[0];
 
-    /**
-     * move package files
-     */
+    if ($zip->open($tempDirGet . $zipPluginFolder . '.zip') === true) {
+        $zip->extractTo($tempDir);
+        $zip->close();
 
-    $tempDirZip = ZipHelpers::getTempDir('tmp-updates-package-' . $release);
-    $target = $tempDirZip . $zipPluginFolder . '/';
-    if (!is_dir($target)) mkdir($target);
+        $folders = array_values(array_filter(scandir($tempDir), function ($e) {
+            return $e !== '.' && $e !== '..';
+        }));
+        $rootFolder = $folders[0];
+        rename("{$tempDir}/{$rootFolder}", "{$tempDir}/{$zipPluginFolder}");
 
-    array_map(function ($e) use ($packageDir, $target) {
-        rename(
-            Helpers::trailingslashit($packageDir) . $e,
-            $target . $e
-        );
-    }, ['public/', 'src/', 'git-installer.php', 'LICENSE']);
+        $zip->open($zipFilePath, ZipArchive::CREATE);
+        ZipHelpers::addDirToZip($tempDir . $zipPluginFolder, $zip, "$zipPluginFolder/");
+        $zip->close();
+    }
 
-    if (!is_dir($target . 'assets/')) mkdir($target . 'assets/');
-    rename(
-        Helpers::trailingslashit($packageDir) . 'assets/dist/',
-        $target . 'assets/dist/'
-    );
-
-    /**
-     * create new Zip
-     */
-
-    ZipHelpers::Zip($tempDirZip, $zipFileDir);
     ZipHelpers::cleanUpTmp();
-}
 
+}
 $matomoTracker->doTrackEvent('Downloaded', $release);
 
 header("Content-type: application/zip");
 header("Content-Disposition: attachment; filename=$zipFileName");
-header("Content-length: " . filesize($zipFileDir));
+header("Content-length: " . filesize($zipFilePath));
 header("Pragma: no-cache");
 header("Expires: 0");
 header("Accept-Ranges: bytes");
-readfile("$zipFileDir");
-
+readfile("$zipFilePath");

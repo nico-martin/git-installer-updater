@@ -21,37 +21,18 @@ class ZipHelpers
         Helpers::removeDir(ABSPATH . '/zip-tmp/');
     }
 
-    public static function unzip($zipFile, $dest)
+    public static function addDirToZip($path, $zip, $zip_path)
     {
-        $zip = new \ZipArchive;
-        $res = $zip->open($zipFile);
-        if ($res !== true) return false;
-        $zip->extractTo($dest);
-        $zip->close();
-        unlink($zipFile);
-        return true;
-    }
-
-    public static function Zip($source, $destination)
-    {
-        $zip = new \ZipArchive();
-
-        if ($zip->open($destination, \ZIPARCHIVE::CREATE) !== TRUE) {
-            exit("cannot open zip\n");
-        }
-
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($source),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($files as $name => $file) {
-            if (!$file->isDir()) {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($source));
-                $zip->addFile($filePath, $relativePath);
+        $handler = opendir($path);
+        while (($filename = readdir($handler)) !== false) {
+            if ($filename != "." && $filename != "..") {
+                if (is_dir($path . "/" . $filename)) {
+                    self::addDirToZip($path . "/" . $filename, $zip, $zip_path . $filename . "/");
+                } else {
+                    $zip->addFile($path . "/" . $filename, $zip_path . $filename);
+                }
             }
         }
-        $zip->close();
+        closedir($handler);
     }
 }
