@@ -1,5 +1,11 @@
 <?php
+require_once './src/MatomoTracker.php';
+
 const ABSPATH = __DIR__;
+
+$matomoTracker = new MatomoTracker((int)9, 'https://analytics.sayhello.agency/');
+$matomoTracker->disableCookieSupport();
+$matomoTracker->doTrackPageView('get plugin zip');
 
 $release = array_key_exists('release', $_GET) ? $_GET['release'] : null;
 
@@ -18,7 +24,7 @@ $zipUrl = $github->getReleaseInfo('zipball_url');
 
 $zipPluginFolder = 'git-installer';
 $zipFileName = $zipPluginFolder . '.zip';
-$releasesDir = Helpers::trailingslashit(ABSPATH) . 'releases/';
+$releasesDir = Helpers::trailingslashit(ABSPATH) . 'releases_old/';
 if (!is_dir($releasesDir)) mkdir($releasesDir);
 $zipFileDir = $releasesDir . $release . '/';
 if (!is_dir($zipFileDir)) mkdir($zipFileDir);
@@ -43,13 +49,12 @@ if (!file_exists($zipFilePath)) {
         $zip->open($zipFilePath, ZipArchive::CREATE);
         ZipHelpers::addDirToZip($tempDir . $zipPluginFolder, $zip, "$zipPluginFolder/");
         $zip->close();
-    } else {
-        exit('ERROR');
     }
 
     ZipHelpers::cleanUpTmp();
 
 }
+$matomoTracker->doTrackEvent('Downloaded', $release);
 
 header("Content-type: application/zip");
 header("Content-Disposition: attachment; filename=$zipFileName");
