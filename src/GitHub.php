@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 class GitHub
 {
     public $release = '';
-    private static $restBase = 'https://api.github.com/repos/SayHelloGmbH/git-installer';
+    private static $restBase = 'https://api.github.com/repos/nico-martin/git-installer';
 
     public function __construct($release)
     {
@@ -18,7 +18,7 @@ class GitHub
         $cacheId = 'latest-release-name';
         $cached = Helpers::getCache($cacheId);
         if ($cached) return $cached;
-        $content = Helpers::httpGetRest('https://api.github.com/repos/SayHelloGmbH/git-installer/releases/latest');
+        $content = Helpers::httpGetRest('https://api.github.com/repos/nico-martin/git-installer/releases/latest');
         $name = $content['tag_name'];
         Helpers::setCache($cacheId, $name);
         return $name;
@@ -45,7 +45,7 @@ class GitHub
     {
         $cached = Helpers::getCache($this->release);
         if ($cached) return $cached;
-        $url = 'https://raw.githubusercontent.com/SayHelloGmbH/git-installer/' . $this->release . '/git-installer.php';
+        $url = 'https://raw.githubusercontent.com/nico-martin/git-installer/' . $this->release . '/git-installer.php';
         $content = Helpers::httpGetPlain($url);
         $headers = Helpers::parseHeader($content);
 
